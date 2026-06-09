@@ -29,10 +29,10 @@ export async function SiteHeader() {
 
   return (
     <header className="hdr">
-      <Link className="logo" href="/">
+      <a className="logo" href="/">
         <span className="logo-script">Lubelski</span>
         <span className="logo-sans">Team Weselny</span>
-      </Link>
+      </a>
       <HeaderNav firstName={firstName} />
     </header>
   );
