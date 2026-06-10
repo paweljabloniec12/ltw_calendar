@@ -92,7 +92,7 @@ const teamPillars = [
   {
     icon: "✦",
     title: "Rabat −5% dla Pary",
-    desc: "Skorzystajcie z oferty min. 3 usługodawców z naszego katalogu, a każdy z nich udzieli Wam rabatu 5%. Szczegóły u każdego usługodawcy.",
+    desc: "Skorzystajcie z oferty min. 3 usługodawców z naszego katalogu, a każdy z nich udzieli Wam rabatu 5%. Dodatkowo, polecane przez nas sale przygotowały dla Was wyjątkowe gratisy. Szczegóły u usługodawców i w salach weselnych.",
   },
 ];
 
