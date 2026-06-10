@@ -304,7 +304,7 @@ export function CalendarManager({
         <div>
           <p className="dtype">{profile.service_type}</p>
           <h1 className="dtitle">
-            Witaj, <em>{profile.full_name.split(" ")[0]}</em>
+            Witaj, <em>{profile.full_name}</em>
           </h1>
         </div>
       </div>
