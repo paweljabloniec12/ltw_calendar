@@ -102,6 +102,7 @@ body {
   background: var(--sage-l);
   color: var(--charcoal);
   font-family: var(--font-body);
+  -webkit-text-size-adjust: 100%;
 }
 
 button,
