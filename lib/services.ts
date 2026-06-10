@@ -31,5 +31,5 @@ export const serviceHints: Record<ServiceType, string> = {
   "Content Creator": "Relacje social media i materiały z dnia ślubu",
   "Oprawa muzyczna": "Muzyka ceremonii i kameralne występy",
   Animacje: "Animacje dla dzieci i gości",
-  "Salon ślubny": "Stylizacja i dekoracja sali ślubnej",
+  "Salon ślubny": "Salon sukien ślubnych i dodatków",
 };

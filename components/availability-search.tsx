@@ -124,6 +124,19 @@ function TeamInfoSection() {
           </div>
         ))}
       </div>
+      <a
+            className="catalog-banner"
+            href="https://www.canva.com/design/DAGdIJYbSkw/g6hpi5iJjFJO1RZDoOntWA/view?utm_content=DAGdIJYbSkw&utm_campaign=designshare&utm_medium=link2&utm_source=uniquelinks&utlId=h6c71fb542b"
+            target="_blank"
+            rel="noreferrer"
+            aria-label="Zobacz katalog Lubelskiego Teamu Weselnego"
+          >
+            <span className="catalog-banner-script">Lubelski</span>
+            <span className="catalog-banner-title">Team Weselny</span>
+            <span className="catalog-banner-sub">
+              Zobacz katalog polecanych usługodawców i otrzymaj rabat!
+            </span>
+          </a>
       <p className="team-info-hashtag">
         Życzymy udanych przygotowań i pięknego dnia, który na zawsze pozostanie
         w Waszej pamięci!
