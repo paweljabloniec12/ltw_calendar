@@ -19,7 +19,8 @@ export type ServiceType =
   | "Samochód"
   | "Content Creator"
   | "Oprawa muzyczna"
-  | "Animacje";
+  | "Animacje"
+  | "Salon ślubny";
 
 export type Database = {
   public: {

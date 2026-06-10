@@ -14,6 +14,7 @@ export const serviceTypes = [
   "Content Creator",
   "Oprawa muzyczna",
   "Animacje",
+  "Salon ślubny"
 ] as const satisfies readonly ServiceType[];
 
 export const serviceHints: Record<ServiceType, string> = {
@@ -30,4 +31,5 @@ export const serviceHints: Record<ServiceType, string> = {
   "Content Creator": "Relacje social media i materiały z dnia ślubu",
   "Oprawa muzyczna": "Muzyka ceremonii i kameralne występy",
   Animacje: "Animacje dla dzieci i gości",
+  "Salon ślubny": "Stylizacja i dekoracja sali ślubnej",
 };
