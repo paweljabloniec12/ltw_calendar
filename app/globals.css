@@ -1193,6 +1193,78 @@ a {
   height: 24px;
 }
 
+/* ==================================================
+   RICH DESCRIPTION
+================================================== */
+
+.pdesc-rich {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+/* Zwykły akapit */
+.pdesc-para {
+  margin: 0;
+  color: var(--charcoal);
+  font-size: 14px;
+  text-align: justify;
+  font-weight: 300;
+  line-height: 1.75;
+}
+
+/* Nagłówek sekcji (linia kończąca się ":") */
+.pdesc-heading {
+  margin: 0;
+  padding-bottom: 7px;
+  border-bottom: 1px solid var(--lgray);
+  color: var(--brown);
+  font-family: var(--font-display);
+  font-size: 12px;
+  font-weight: 400;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+}
+
+/* Lista (emoji lub bullet) */
+.pdesc-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
+}
+
+.pdesc-list-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  font-size: 14px;
+  font-weight: 300;
+  line-height: 1.6;
+  color: var(--charcoal);
+}
+
+/* Emoji przed pozycją listy */
+.pdesc-emoji {
+  font-size: 16px;
+  line-height: 1.5;
+  flex-shrink: 0;
+  width: 22px;
+  text-align: center;
+}
+
+/* Bullet "✦" przed pozycją listy */
+.pdesc-bullet {
+  color: var(--sage);
+  font-size: 10px;
+  line-height: 1.9;
+  flex-shrink: 0;
+  width: 22px;
+  text-align: center;
+}
+
 /* =====================================
    MONTH PICKER
 ===================================== */

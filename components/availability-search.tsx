@@ -178,6 +178,128 @@ function TeamInfoSection() {
   );
 }
 
+/* ─── Rich description renderer ──────────────────────────────── */
+
+// POPRAWKA: Dodaliśmy \uFE0F? na końcu, aby wychwycić niewidzialny selektor koloru emoji
+const EXTENDED_EMOJI_RE = /^\p{Extended_Pictographic}\uFE0F?/u;
+const BULLET_RE = /^[•\-–—►✓✔]\s+/;
+const HEADING_RE = /^.{3,60}:$/u;
+
+type ParsedLine =
+  | { kind: "emoji";  emoji: string; text: string }
+  | { kind: "bullet"; text: string }
+  | { kind: "text";   text: string };
+
+function parseLine(raw: string): ParsedLine {
+  const s = raw.trim();
+  if (!s) return { kind: "text", text: "" };
+
+  // POPRAWKA: Zamiast [...s][0], używamy metody .match(). 
+  // Dzięki temu emoji takie jak ❤️, ⏱️ czy ☠️ nie tracą swoich kolorów.
+  const emojiMatch = s.match(EXTENDED_EMOJI_RE);
+  if (emojiMatch) {
+    const emoji = emojiMatch[0];
+    return { kind: "emoji", emoji, text: s.slice(emoji.length).trim() };
+  }
+  
+  if (BULLET_RE.test(s)) {
+    return { kind: "bullet", text: s.replace(BULLET_RE, "") };
+  }
+  return { kind: "text", text: s };
+}
+
+function RichDesc({ text }: { text: string }) {
+  if (!text) return null;
+
+  const cleanedText = text.trim();
+
+  // Normalizacja pustych linii (usuwanie spacji z pustych linii)
+  const normalizedText = cleanedText.replace(/\n\s*\n/g, (match) => {
+    const nlCount = (match.match(/\n/g) || []).length;
+    return "\n".repeat(nlCount);
+  });
+
+  // Podział na bloki z zachowaniem separatorów \n
+  const blocks = normalizedText.split(/(\n{2,})/).filter(Boolean);
+  const blockStyle = { margin: "0 0 0 0" };
+
+  return (
+    <div className="pdesc-rich">
+      {blocks.map((block, bi) => {
+        // Obsługa kontrolowanych przerw pionowych (gdy enterów jest więcej niż 2)
+        if (/^\n+$/.test(block)) {
+          const nlCount = block.length;
+          if (nlCount <= 2) return null;
+
+          const extraLines = nlCount - 2;
+          return (
+            <div
+              key={bi}
+              className="pdesc-spacer"
+              style={{ height: `${extraLines * 1.25}rem` }}
+            />
+          );
+        }
+
+        const lines = block
+          .split("\n")
+          .map((l) => l.trim())
+          .filter(Boolean);
+
+        if (lines.length === 0) return null;
+
+        if (lines.length === 1 && HEADING_RE.test(lines[0])) {
+          return (
+            <p key={bi} className="pdesc-heading" style={{ ...blockStyle, color: "var(--brown)", fontWeight: "600" }}>
+              {lines[0]}
+            </p>
+          );
+        }
+
+        const parsed = lines.map(parseLine);
+        const allList = parsed.every(
+          (l) => l.kind === "emoji" || l.kind === "bullet"
+        );
+
+        // Renderowanie listy <ul> (zarówno dla emoji jak i ✦)
+        if (allList && parsed.length > 0) {
+          return (
+            <ul key={bi} className="pdesc-list" style={{ ...blockStyle, paddingLeft: "0", listStyle: "none" }}>
+              {parsed.map((item, li) => (
+                <li key={li} className="pdesc-list-item" style={{ display: "flex", alignItems: "flex-start", marginBottom: "6px" }}>
+                  {item.kind === "emoji" && (
+                    <span className="pdesc-emoji" aria-hidden="true" style={{ marginRight: "8px", flexShrink: 0 }}>
+                      {item.emoji}
+                    </span>
+                  )}
+                  {item.kind === "bullet" && (
+                    <span className="pdesc-bullet" aria-hidden="true" style={{ marginRight: "8px", color: "var(--gold)", flexShrink: 0 }}>
+                      ✦
+                    </span>
+                  )}
+                  <span>{item.text}</span>
+                </li>
+              ))}
+            </ul>
+          );
+        }
+
+        // Zwykły akapit tekstowy
+        return (
+          <p key={bi} className="pdesc-para" style={{ ...blockStyle, lineHeight: "1.55" }}>
+            {lines.map((line, li) => (
+              <span key={li}>
+                {line}
+                {li < lines.length - 1 && <br />}
+              </span>
+            ))}
+          </p>
+        );
+      })}
+    </div>
+  );
+}
+
 /* ─── Provider Modal ──────────────────────────────────────────── */
 type ProviderModalProps = {
   profile: Profile;
@@ -196,12 +318,10 @@ function ProviderModal({ profile, onClose }: ProviderModalProps) {
     .join("")
     .toUpperCase();
 
-  // Close on backdrop click
   function handleBackdrop(e: React.MouseEvent<HTMLDivElement>) {
     if (e.target === e.currentTarget) onClose();
   }
 
-  // Close on Escape
   useState(() => {
     function onKey(e: KeyboardEvent) {
       if (e.key === "Escape") onClose();
@@ -219,7 +339,6 @@ function ProviderModal({ profile, onClose }: ProviderModalProps) {
       aria-label={`Wizytówka: ${profile.full_name}`}
     >
       <div className="pmodal">
-        {/* Close button */}
         <button
           className="pmodal-close"
           onClick={onClose}
@@ -229,16 +348,12 @@ function ProviderModal({ profile, onClose }: ProviderModalProps) {
           <X aria-hidden="true" />
         </button>
 
-        {/* Header strip */}
         <div className="pmodal-hdr">
           <p className="pmodal-type">{profile.service_type}</p>
           <h2 className="pmodal-name">{profile.full_name}</h2>
         </div>
 
-        {/* Scrollable body */}
         <div className="pmodal-body">
-
-          {/* Zdjęcie pełnej szerokości lub placeholder z inicjałami */}
           {!imgError ? (
             <div className="pmodal-photo">
               <img
@@ -254,12 +369,9 @@ function ProviderModal({ profile, onClose }: ProviderModalProps) {
             </div>
           )}
 
-          {/* Description */}
-          {desc ? (
-            <p className="pmodal-desc">{desc}</p>
-          ) : null}
+          {/* ✅ Zamienione na RichDesc */}
+          {desc ? <RichDesc text={desc} /> : null}
 
-          {/* Social / contact links — siatka 2 kolumn */}
           <div className="pmodal-links">
             {profile.website_url ? (
               <a className="pmodal-link" href={profile.website_url} rel="noreferrer" target="_blank">
@@ -298,7 +410,6 @@ function ProviderModal({ profile, onClose }: ProviderModalProps) {
               </a>
             ) : null}
           </div>
-
         </div>
       </div>
     </div>
