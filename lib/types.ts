@@ -39,6 +39,7 @@ export type Database = {
           tiktok_url: string | null;
           description: string | null;
           is_active: boolean;
+          suspended_until: string | null;
           created_at: string | null;
           updated_at: string | null;
         };
@@ -54,6 +55,7 @@ export type Database = {
           tiktok_url?: string | null;
           description?: string | null;
           is_active?: boolean;
+          suspended_until?: string | null;
           created_at?: string | null;
           updated_at?: string | null;
         };
@@ -68,6 +70,7 @@ export type Database = {
           tiktok_url?: string | null;
           description?: string | null;
           is_active?: boolean;
+          suspended_until?: string | null;
           updated_at?: string | null;
         };
         Relationships: [

@@ -4,6 +4,7 @@ import { useMemo, useState, useTransition, useRef, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { ChevronLeft, ChevronRight, Loader2, X } from "lucide-react";
 import { removeBookedDate, setBookedDatesStatus } from "@/app/actions/dates";
+import { createClient } from "@/lib/supabase/browser";
 import type { BookedDate, Profile } from "@/lib/types";
 
 const monthNames = [
@@ -165,11 +166,10 @@ function MonthYearPicker({
             {monthNames.map((name, i) => (
               <button
                 key={name}
-                className={`mypicker-item${
-                  pickedYear === currentYear && i === currentMonth
+                className={`mypicker-item${pickedYear === currentYear && i === currentMonth
                     ? " mypicker-item--current"
                     : ""
-                }`}
+                  }`}
                 onClick={() => handleMonthClick(i)}
                 type="button"
               >
@@ -187,7 +187,7 @@ function MonthYearPicker({
 
 export function CalendarManager({
   profile,
-  initialBookedDates,
+  initialBookedDates: initialBookedDates,
 }: CalendarManagerProps) {
   const router = useRouter();
   const now = useMemo(() => new Date(), []);
@@ -201,6 +201,32 @@ export function CalendarManager({
   const [notice, setNotice] = useState("");
   const [isPending, startTransition] = useTransition();
   const [showPicker, setShowPicker] = useState(false);
+
+  /* Sekcja stanów dla administratora aplikacji */
+  const isAdmin = profile.id === "f7ec9695-3fbe-49b6-b9c8-a15e7fb0ecc9";
+  const [allProfiles, setAllProfiles] = useState<any[]>([]);
+  const [adminMode, setAdminMode] = useState<"none" | "block" | "unblock">("none");
+  const [blockDuration, setBlockDuration] = useState<string>("1_month");
+  const [confirmModal, setConfirmModal] = useState<{
+    open: boolean;
+    provider: any | null;
+    action: "block" | "unblock";
+  }>({ open: false, provider: null, action: "block" });
+
+  useEffect(() => {
+    if (!isAdmin) return;
+    async function fetchAllProviders() {
+      const supabase = createClient();
+      const { data, error } = await supabase
+        .from("profiles")
+        .select("*")
+        .order("full_name");
+      if (!error && data) {
+        setAllProfiles(data);
+      }
+    }
+    fetchAllProviders();
+  }, [isAdmin]);
 
   const bookedList = useMemo(() => [...busyDates].sort(), [busyDates]);
   const selectedCount = selectedDates.size;
@@ -298,6 +324,88 @@ export function CalendarManager({
     });
   }
 
+  /* Funkcja wykonująca blokadę / odblokowanie w bazie przez Admina */
+  async function handleAdminExecuteAction() {
+    if (!confirmModal.provider) return;
+    const provider = confirmModal.provider;
+    const supabase = createClient();
+
+    startTransition(async () => {
+      let targetValue: string | null = null;
+
+      if (confirmModal.action === "block") {
+        const targetDate = new Date();
+        if (blockDuration === "1_week") targetDate.setDate(targetDate.getDate() + 7);
+        else if (blockDuration === "3_months") targetDate.setMonth(targetDate.getMonth() + 3);
+        else targetDate.setMonth(targetDate.getMonth() + 1); // domyślnie 1 miesiąc
+
+        targetValue = targetDate.toISOString();
+      }
+
+      const { error } = await supabase
+        .from("profiles")
+        .update({ suspended_until: targetValue })
+        .eq("id", provider.id);
+
+      if (error) {
+        setNotice(`Błąd administratora: ${error.message}`);
+      } else {
+        setNotice(
+          `Pomyślnie ${confirmModal.action === "block" ? "zablokowano" : "odblokowano"} usługodawcę ${provider.full_name}`
+        );
+        // Aktualizacja lokalnego stanu listy, by zmiany były widoczne od razu
+        setAllProfiles((prev) =>
+          prev.map((p) => (p.id === provider.id ? { ...p, suspended_until: targetValue } : p))
+        );
+      }
+      setConfirmModal({ open: false, provider: null, action: "block" });
+      router.refresh();
+    });
+  }
+
+  // Listy filtrowane dla admina
+const adminId = "f7ec9695-3fbe-49b6-b9c8-a15e7fb0ecc9";
+
+  const activeProviders = allProfiles.filter((p) => {
+    if (p.id === adminId) return false; // <-- WYKLUCZAMY ADMINA
+    if (!p.suspended_until) return true;
+    return new Date(p.suspended_until) <= new Date();
+  });
+
+  const blockedProviders = allProfiles.filter((p) => {
+    if (p.id === adminId) return false; // <-- WYKLUCZAMY ADMINA
+    if (!p.suspended_until) return false;
+    return new Date(p.suspended_until) > new Date();
+  });
+
+  const suspendedUntil = profile.suspended_until;
+  const isCurrentSuspended = suspendedUntil && new Date(suspendedUntil) > new Date();
+  
+  if (isCurrentSuspended && suspendedUntil) {
+    return (
+      <div style={{ display: "flex", justifyContent: "center", alignItems: "center", minHeight: "60vh", padding: 20 }}>
+        <div className="scard" style={{ maxWidth: 500, width: "100%", padding: "40px 32px", textAlign: "center", border: "1px solid var(--wine)", borderRadius: 8 }}>
+          <div style={{ fontSize: 48, marginBottom: 16 }}>⚠️</div>
+          <h1 className="dtitle" style={{ color: "var(--wine)", fontSize: 24, marginBottom: 12, fontWeight: "700" }}>
+            Konto zawieszone
+          </h1>
+          <p style={{ color: "var(--brown)", fontSize: 14, lineHeight: 1.6, marginBottom: 16 }}>
+            Dostęp do Twojego panelu zarządzania został tymczasowo zablokowany przez administratora aplikacji. Twoja oferta nie jest teraz widoczna dla klientów.
+          </p>
+          <div style={{ background: "rgba(141, 25, 46, 0.05)", padding: "12px", borderRadius: 6, inlineSize: "max-content", margin: "0 auto 24px auto" }}>
+            <span style={{ fontSize: 13, fontWeight: "600", color: "var(--wine)" }}>
+              {/* Tutaj przekazujemy bezpieczną stałą suspendedUntil, która na pewno jest stringiem */}
+              Blokada obowiązuje do: {new Date(suspendedUntil).toLocaleDateString("pl-PL")} r.
+            </span>
+          </div>
+          <p style={{ fontSize: 12, color: "var(--gray)" }}>
+            Jeśli uważasz, że to pomyłka, skontaktuj się bezpośrednio z administratorem.
+          </p>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <>
       <div className="dhdr">
@@ -315,6 +423,154 @@ export function CalendarManager({
         dany dzień nie jest oznaczony jako zajęty.
       </div>
       {notice ? <p className="sucbox panel-msg">{notice}</p> : null}
+
+      {/* ─── PANEL ADMINISTRATORA (Widoczny tylko dla wybranego ID) ─── */}
+      {isAdmin && (
+        <div className="scard" style={{ marginBottom: 28, border: "1px solid var(--wine)" }}>
+          <div className="shead" style={{ background: "var(--wine)", color: "#fff", fontWeight: "600" }}>
+            Panel Główny Administratora
+          </div>
+          <div style={{ padding: 20 }}>
+            <div style={{ display: "flex", gap: 12, marginBottom: 16 }}>
+              <button
+                type="button"
+                className={`month-btn ${adminMode === "block" ? "" : "secondary"}`}
+                onClick={() => setAdminMode(adminMode === "block" ? "none" : "block")}
+                style={{ margin: 0, width: "auto", padding: "8px 16px" }}
+              >
+                Zablokuj usługodawcę
+              </button>
+              <button
+                type="button"
+                className={`month-btn ${adminMode === "unblock" ? "" : "secondary"}`}
+                onClick={() => setAdminMode(adminMode === "unblock" ? "none" : "unblock")}
+                style={{ margin: 0, width: "auto", padding: "8px 16px" }}
+              >
+                Odblokuj usługodawcę
+              </button>
+            </div>
+
+            {/* Widok listy do zablokowania */}
+            {adminMode === "block" && (
+              <div style={{ animation: "fadeIn 0.2s ease" }}>
+                <div style={{ marginBottom: 14 }}>
+                  <label style={{ fontSize: 13, fontWeight: "600", display: "block", marginBottom: 6 }}>
+                    Okres blokady konta:
+                  </label>
+                  <select
+                    value={blockDuration}
+                    onChange={(e) => setBlockDuration(e.target.value)}
+                    style={{ padding: "6px 12px", borderRadius: 4, border: "1px solid var(--lgray)", fontSize: 13 }}
+                  >
+                    <option value="1_week">1 tydzień</option>
+                    <option value="1_month">1 miesiąc</option>
+                    <option value="3_months">3 miesiące</option>
+                  </select>
+                </div>
+
+                <label style={{ fontSize: 13, fontWeight: "600", display: "block", marginBottom: 6 }}>
+                  Wybierz osobę do zablokowania:
+                </label>
+                <div className="slist" style={{ maxHeight: 220, overflowY: "auto", border: "1px solid var(--lgray)", borderRadius: 6 }}>
+                  {activeProviders.map((p) => (
+                    <div key={p.id} className="sitem" style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "8px 12px" }}>
+                      <span style={{ fontSize: 13 }}>{p.full_name} <em style={{ color: "var(--gray)", fontSize: 12 }}>({p.service_type || "Brak typu"})</em></span>
+                      <button
+                        type="button"
+                        className="acbtn busy"
+                        style={{ padding: "4px 10px", fontSize: 12, height: "auto", width: "auto" }}
+                        onClick={() => setConfirmModal({ open: true, provider: p, action: "block" })}
+                      >
+                        Zablokuj
+                      </button>
+                    </div>
+                  ))}
+                  {activeProviders.length === 0 && <div className="emsg">Brak aktywnych usługodawców</div>}
+                </div>
+              </div>
+            )}
+
+            {/* Widok listy do odblokowania */}
+            {adminMode === "unblock" && (
+              <div style={{ animation: "fadeIn 0.2s ease" }}>
+                <label style={{ fontSize: 13, fontWeight: "600", display: "block", marginBottom: 6 }}>
+                  Aktualnie zablokowani usługodawcy:
+                </label>
+                <div className="slist" style={{ maxHeight: 220, overflowY: "auto", border: "1px solid var(--lgray)", borderRadius: 6 }}>
+                  {blockedProviders.map((p) => (
+                    <div key={p.id} className="sitem" style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "8px 12px" }}>
+                      <div>
+                        <span style={{ fontSize: 13, fontWeight: "600", display: "block" }}>{p.full_name}</span>
+                        <span style={{ fontSize: 11, color: "var(--wine)" }}>
+                          Blokada do: {new Date(p.suspended_until).toLocaleDateString("pl-PL")}
+                        </span>
+                      </div>
+                      <button
+                        type="button"
+                        className="acbtn free"
+                        style={{ padding: "4px 10px", fontSize: 12, height: "auto", width: "auto" }}
+                        onClick={() => setConfirmModal({ open: true, provider: p, action: "unblock" })}
+                      >
+                        Odblokuj
+                      </button>
+                    </div>
+                  ))}
+                  {blockedProviders.length === 0 && <div className="emsg">Brak zablokowanych użytkowników</div>}
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* ─── MODAL POTWIERDZENIA AKCJI (TAK/NIE) ─── */}
+      {confirmModal.open && confirmModal.provider && (
+        <div className="mypicker-backdrop" style={{ zIndex: 2000 }}>
+          <div className="mypicker" style={{ maxWidth: 420, padding: 24, borderRadius: 8 }}>
+            <div className="mypicker-hdr" style={{ marginBottom: 16 }}>
+              <span className="mypicker-title" style={{ fontWeight: "600" }}>Potwierdź operację</span>
+              <button
+                className="mypicker-close"
+                onClick={() => setConfirmModal({ open: false, provider: null, action: "block" })}
+                type="button"
+              >
+                <X aria-hidden="true" />
+              </button>
+            </div>
+            <div style={{ textAlign: "center", marginBottom: 24 }}>
+              <p style={{ fontSize: 14, lineHeight: 1.5, color: "var(--brown)" }}>
+                Czy chcesz {confirmModal.action === "block" ? "zablokować" : "odblokować"} usługodawcę{" "}
+                <strong>{confirmModal.provider.full_name}</strong>?
+              </p>
+              {confirmModal.action === "block" && (
+                <p style={{ fontSize: 12, color: "var(--wine)", marginTop: 8, fontWeight: "600" }}>
+                  Wybrany czas zawieszenia konta: {blockDuration === "1_week" ? "1 tydzień" : blockDuration === "3_months" ? "3 miesiące" : "1 miesiąc"}
+                </p>
+              )}
+            </div>
+            <div style={{ display: "flex", gap: 12, justifyContent: "center" }}>
+              <button
+                type="button"
+                className="acbtn busy"
+                style={{ padding: "8px 24px", width: "100px" }}
+                onClick={handleAdminExecuteAction}
+                disabled={isPending}
+              >
+                {isPending ? "..." : "Tak"}
+              </button>
+              <button
+                type="button"
+                className="acbtn cancel"
+                style={{ padding: "8px 24px", width: "100px" }}
+                onClick={() => setConfirmModal({ open: false, provider: null, action: "block" })}
+                disabled={isPending}
+              >
+                Nie
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       <div className="dlayout">
         <div>

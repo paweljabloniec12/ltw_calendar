@@ -125,55 +125,55 @@ function TeamInfoSection() {
         ))}
       </div>
       <a
-            className="catalog-banner"
-            href="https://www.canva.com/design/DAGdIJYbSkw/g6hpi5iJjFJO1RZDoOntWA/view?utm_content=DAGdIJYbSkw&utm_campaign=designshare&utm_medium=link2&utm_source=uniquelinks&utlId=h6c71fb542b"
-            target="_blank"
-            rel="noreferrer"
-            aria-label="Zobacz katalog Lubelskiego Teamu Weselnego"
-          >
-            <span className="catalog-banner-script">Lubelski</span>
-            <span className="catalog-banner-title">Team Weselny</span>
-            <span className="catalog-banner-sub">
-              Zobacz katalog polecanych usługodawców i otrzymaj rabat!
-            </span>
-          </a>
+        className="catalog-banner"
+        href="https://www.canva.com/design/DAGdIJYbSkw/g6hpi5iJjFJO1RZDoOntWA/view?utm_content=DAGdIJYbSkw&utm_campaign=designshare&utm_medium=link2&utm_source=uniquelinks&utlId=h6c71fb542b"
+        target="_blank"
+        rel="noreferrer"
+        aria-label="Zobacz katalog Lubelskiego Teamu Weselnego"
+      >
+        <span className="catalog-banner-script">Lubelski</span>
+        <span className="catalog-banner-title">Team Weselny</span>
+        <span className="catalog-banner-sub">
+          Zobacz katalog polecanych usługodawców i otrzymaj rabat!
+        </span>
+      </a>
       <p className="team-info-hashtag">
         Życzymy udanych przygotowań i pięknego dnia, który na zawsze pozostanie
         w Waszej pamięci!
       </p>
 
       <div className="team-social-wrap">
-  <p className="team-social-label">Sprawdź nasze realizacje</p>
-  <div className="team-social-icons">
-    <a
-      className="team-social-link"
-      href="https://www.instagram.com/lubelski_team_weselny/"
-      target="_blank"
-      rel="noreferrer"
-      aria-label="Instagram Lubelski Team Weselny"
-    >
-      <IconInstagram className="team-social-icon" />
-    </a>
-    <a
-      className="team-social-link"
-      href="https://www.facebook.com/lubelskiteamweselny/?locale=pl_PL"
-      target="_blank"
-      rel="noreferrer"
-      aria-label="Facebook Lubelski Team Weselny"
-    >
-      <IconFacebook className="team-social-icon" />
-    </a>
-    <a
-      className="team-social-link"
-      href="https://www.tiktok.com/@lubelski_team_weselny"
-      target="_blank"
-      rel="noreferrer"
-      aria-label="TikTok Lubelski Team Weselny"
-    >
-      <IconTikTok className="team-social-icon" />
-    </a>
-  </div>
-</div>
+        <p className="team-social-label">Sprawdź nasze realizacje</p>
+        <div className="team-social-icons">
+          <a
+            className="team-social-link"
+            href="https://www.instagram.com/lubelski_team_weselny/"
+            target="_blank"
+            rel="noreferrer"
+            aria-label="Instagram Lubelski Team Weselny"
+          >
+            <IconInstagram className="team-social-icon" />
+          </a>
+          <a
+            className="team-social-link"
+            href="https://www.facebook.com/lubelskiteamweselny/?locale=pl_PL"
+            target="_blank"
+            rel="noreferrer"
+            aria-label="Facebook Lubelski Team Weselny"
+          >
+            <IconFacebook className="team-social-icon" />
+          </a>
+          <a
+            className="team-social-link"
+            href="https://www.tiktok.com/@lubelski_team_weselny"
+            target="_blank"
+            rel="noreferrer"
+            aria-label="TikTok Lubelski Team Weselny"
+          >
+            <IconTikTok className="team-social-icon" />
+          </a>
+        </div>
+      </div>
     </section>
   );
 }
@@ -186,9 +186,9 @@ const BULLET_RE = /^[•\-–—►✓✔]\s+/;
 const HEADING_RE = /^.{3,60}:$/u;
 
 type ParsedLine =
-  | { kind: "emoji";  emoji: string; text: string }
+  | { kind: "emoji"; emoji: string; text: string }
   | { kind: "bullet"; text: string }
-  | { kind: "text";   text: string };
+  | { kind: "text"; text: string };
 
 function parseLine(raw: string): ParsedLine {
   const s = raw.trim();
@@ -201,7 +201,7 @@ function parseLine(raw: string): ParsedLine {
     const emoji = emojiMatch[0];
     return { kind: "emoji", emoji, text: s.slice(emoji.length).trim() };
   }
-  
+
   if (BULLET_RE.test(s)) {
     return { kind: "bullet", text: s.replace(BULLET_RE, "") };
   }
@@ -481,8 +481,20 @@ export function AvailabilitySearch() {
       const bookedIds = new Set((booked ?? []).map((r) => r.provider_id));
       const active = profiles ?? [];
 
-      setProviders(active.filter((p) => !bookedIds.has(p.id)));
-      setTotalProviders(active.length);
+      /* ─── FILTROWANIE ADMINA ORAZ ZABLOKOWANYCH USŁUGODAWCÓW ─── */
+      const adminId = "f7ec9695-3fbe-49b6-b9c8-a15e7fb0ecc9";
+
+      const visibleProfiles = active.filter((p) => {
+        if (p.id === adminId) return false; // <-- CAŁKOWICIE UKRYWAMY ADMINA Z WYNIKÓW I LICZNIKA
+        if (!p.suspended_until) return true; // Brak daty = brak blokady
+        return new Date(p.suspended_until) <= new Date(); // Blokada minęła lub jest w przeszłości
+      });
+
+      // Z widocznych, nie-administracyjnych profili wybieramy te, które nie są zajęte w wybranym dniu
+      const availableProviders = visibleProfiles.filter((p) => !bookedIds.has(p.id));
+
+      setProviders(availableProviders);
+      setTotalProviders(visibleProfiles.length); // Licznik pokaże prawidłową liczbę (bez admina i bez zablokowanych)
       setConfirmedDate(selectedDate);
     } catch (err) {
       setMessage(err instanceof Error ? err.message : "Nie udało się połączyć z Supabase.");
