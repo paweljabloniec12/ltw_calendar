@@ -493,6 +493,45 @@ export function AvailabilitySearch() {
       // Z widocznych, nie-administracyjnych profili wybieramy te, które nie są zajęte w wybranym dniu
       const availableProviders = visibleProfiles.filter((p) => !bookedIds.has(p.id));
 
+      /* ─── NOWE: NIESTANDARDOWE SORTOWANIE WEDŁUG TWOICH KATEGORII ─── */
+      const SERVICE_PRIORITY: Record<string, number> = {
+        "fotografia": 1,
+        "video": 2,
+        "zespół": 3,
+        "zespoł": 3,
+        "dj": 4,
+        "dekoracje": 5,
+        "salon sukni ślubnych": 6,
+        "bar": 7,
+        "beauty": 8,
+        "cukiernie": 9,
+        "cukiernia": 9,
+        "atrakcje": 10,
+        "content creator": 11,
+        "oprawa muzyczna": 12,
+        "animacje": 13,
+        "sala weselna": 14,
+        "samochód": 15
+      };
+
+      availableProviders.sort((a, b) => {
+        // Sprowadzamy tekst do małych liter i usuwamy zbędne spacje, żeby dopasować do mapy priorytetów
+        const typeA = (a.service_type || "").toLowerCase().trim();
+        const typeB = (b.service_type || "").toLowerCase().trim();
+
+        // Pobieramy wagę (jeśli kategorii nie ma na liście, dostaje odległy numer 999)
+        const priorityA = SERVICE_PRIORITY[typeA] ?? 999;
+        const priorityB = SERVICE_PRIORITY[typeB] ?? 999;
+
+        if (priorityA !== priorityB) {
+          return priorityA - priorityB; // Sortowanie od 1 do 13
+        }
+
+        // Jeśli kategoria jest taka sama (np. dwóch fotografów), sortujemy ich alfabetycznie po nazwie/imieniu
+        return (a.full_name || "").localeCompare(b.full_name || "", "pl");
+      });
+      /* ────────────────────────────────────────────────────────────── */
+
       setProviders(availableProviders);
       setTotalProviders(visibleProfiles.length); // Licznik pokaże prawidłową liczbę (bez admina i bez zablokowanych)
       setConfirmedDate(selectedDate);

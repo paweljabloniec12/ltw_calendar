@@ -1883,6 +1883,94 @@ textarea {
   max-width: 140px;
 }
 
+/* ─── BANER COOKIES (STYLIZACJA APLIKACJI) ─── */
+
+.cookie-banner {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background-color: var(--off-white);
+  border-top: 1px solid #e2e8f0;
+  box-shadow: 0 -4px 12px rgba(0, 0, 0, 0.08);
+  padding: 16px 24px;
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column; /* Na telefonach: elementy jeden pod drugim */
+  gap: 14px;
+  animation: cookieSlideUp 0.3s ease-out;
+}
+
+.cookie-banner-text {
+  margin: 0;
+  font-size: 13px;
+  color: var(--charcoal);
+  max-width: 100%;
+  line-height: 1.5;
+  text-align: center;
+}
+
+.cookie-banner-btn {
+  background-color: var(--brown);
+  color: var(--off-white);
+  border: none;
+  padding: 8px 20px;
+  border-radius: 4px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+  white-space: nowrap;
+}
+
+.cookie-banner-btn:hover {
+  background-color: var(--sage); 
+}
+
+/* ── Układ dla komputerów i tabletów (Desktop) ── */
+@media (min-width: 768px) {
+  .cookie-banner {
+    flex-direction: row;
+    justify-content: space-between;
+    gap: 24px;
+    padding: 14px 24px;
+  }
+
+  /* TRIK RÓWNOWAŻĄCY: Tworzymy niewidzialny "odważnik" po lewej stronie, 
+     który ma dokładnie taką samą szerokość jak przycisk po prawej. 
+     Dzięki temu przeglądarka perfekcyjnie centruje środkowy tekst na ekranie! */
+  .cookie-banner::before {
+    content: "";
+    display: block;
+    width: 190px; 
+    flex-shrink: 0;
+  }
+
+  .cookie-banner-text {
+    max-width: 580px; /* Zamyka tekst dokładnie wewnątrz Twoich ZIELONYCH linii */
+    flex: 1;
+    text-align: center;
+  }
+
+  .cookie-banner-btn {
+    width: 190px; /* Sztywna szerokość dopasowana do elementu ::before */
+    text-align: center;
+    flex-shrink: 0;
+  }
+}
+
+/* Animacja wysuwania się baneru z dołu ekranu */
+@keyframes cookieSlideUp {
+  from {
+    transform: translateY(100%);
+  }
+  to {
+    transform: translateY(0);
+  }
+}
+
 /* ==================================================
    TABLET
 ================================================== */

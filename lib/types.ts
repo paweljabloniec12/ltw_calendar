@@ -12,16 +12,16 @@ export type ServiceType =
   | "Zespół"
   | "DJ"
   | "Dekoracje"
+  | "Salon sukni ślubnych"
+  | "Bar"  
   | "Beauty"
-  | "Bar"
   | "Cukiernia"
   | "Atrakcje"
-  | "Samochód"
   | "Content Creator"
   | "Oprawa muzyczna"
   | "Animacje"
-  | "Salon ślubny"
-  | "Sala weselna";
+  | "Sala weselna"
+  | "Samochód";
 
 export type Database = {
   public: {
