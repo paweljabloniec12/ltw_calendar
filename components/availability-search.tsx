@@ -19,6 +19,13 @@ import "react-datepicker/dist/react-datepicker.css";
 import Image from "next/image";
 registerLocale("pl", pl);
 
+
+function trackEvent(name: string, params?: Record<string, string>) {
+  if (typeof window !== "undefined" && window.gtag) {
+    window.gtag("event", name, params);
+  }
+}
+
 /* ─── Brand SVG icons ─────────────────────────────────────────── */
 function IconInstagram({ className }: { className?: string }) {
   return (
@@ -130,6 +137,7 @@ function TeamInfoSection() {
         href="https://www.canva.com/design/DAGdIJYbSkw/g6hpi5iJjFJO1RZDoOntWA/view?utm_content=DAGdIJYbSkw&utm_campaign=designshare&utm_medium=link2&utm_source=uniquelinks&utlId=h6c71fb542b"
         target="_blank"
         rel="noreferrer"
+        onClick={() => trackEvent("catalog_click", { location: "home" })}
         aria-label="Zobacz katalog Lubelskiego Teamu Weselnego"
       >
         <span className="catalog-banner-script">Lubelski</span>
@@ -380,37 +388,55 @@ function ProviderModal({ profile, onClose }: ProviderModalProps) {
 
           <div className="pmodal-links">
             {profile.website_url ? (
-              <a className="pmodal-link" href={profile.website_url} rel="noreferrer" target="_blank">
+              <a className="pmodal-link" href={profile.website_url} rel="noreferrer" target="_blank" onClick={() => trackEvent("contact_click", {
+                provider_name: profile.full_name,
+                link_type: "website",
+              })}>
                 <Globe className="pmodal-link-icon" aria-hidden="true" />
                 <span>Strona www</span>
               </a>
             ) : null}
             {profile.instagram_url ? (
-              <a className="pmodal-link" href={profile.instagram_url} rel="noreferrer" target="_blank">
+              <a className="pmodal-link" href={profile.instagram_url} rel="noreferrer" target="_blank" onClick={() => trackEvent("contact_click", {
+                provider_name: profile.full_name,
+                link_type: "instagram",
+              })}>
                 <IconInstagram className="pmodal-link-icon" />
                 <span>Instagram</span>
               </a>
             ) : null}
             {profile.facebook_url ? (
-              <a className="pmodal-link" href={profile.facebook_url} rel="noreferrer" target="_blank">
+              <a className="pmodal-link" href={profile.facebook_url} rel="noreferrer" target="_blank" onClick={() => trackEvent("contact_click", {
+                provider_name: profile.full_name,
+                link_type: "facebook",
+              })}>
                 <IconFacebook className="pmodal-link-icon" />
                 <span>Facebook</span>
               </a>
             ) : null}
             {profile.tiktok_url ? (
-              <a className="pmodal-link" href={profile.tiktok_url} rel="noreferrer" target="_blank">
+              <a className="pmodal-link" href={profile.tiktok_url} rel="noreferrer" target="_blank" onClick={() => trackEvent("contact_click", {
+                provider_name: profile.full_name,
+                link_type: "tiktok",
+              })}>
                 <IconTikTok className="pmodal-link-icon" />
                 <span>TikTok</span>
               </a>
             ) : null}
             {profile.email_public ? (
-              <a className="pmodal-link" href={`mailto:${profile.email_public}`}>
+              <a className="pmodal-link" href={`mailto:${profile.email_public}`} onClick={() => trackEvent("contact_click", {
+                provider_name: profile.full_name,
+                link_type: "email",
+              })}>
                 <Mail className="pmodal-link-icon" aria-hidden="true" />
                 <span>{profile.email_public}</span>
               </a>
             ) : null}
             {profile.phone ? (
-              <a className="pmodal-link" href={`tel:${profile.phone}`}>
+              <a className="pmodal-link" href={`tel:${profile.phone}`} onClick={() => trackEvent("contact_click", {
+                provider_name: profile.full_name,
+                link_type: "phone",
+              })}>
                 <Phone className="pmodal-link-icon" aria-hidden="true" />
                 <span>{profile.phone}</span>
               </a>
@@ -648,14 +674,10 @@ export function AvailabilitySearch() {
                   key={profile.id}
                   profile={profile}
                   onClick={() => {
-                    // Wyślij event do GA
-                    if (typeof window !== "undefined" && (window as any).gtag) {
-                      (window as any).gtag("event", "provider_click", {
-                        provider_name: profile.full_name,
-                        service_type: profile.service_type,
-                      });
-                    }
-                    // Oryginalne działanie — otwieranie modala
+                    trackEvent("provider_click", {
+                      provider_name: profile.full_name,
+                      service_type: profile.service_type,
+                    });
                     setActiveProfile(profile);
                   }}
                   onPrefetch={() => {
@@ -678,6 +700,7 @@ export function AvailabilitySearch() {
             href="https://www.canva.com/design/DAGdIJYbSkw/g6hpi5iJjFJO1RZDoOntWA/view?utm_content=DAGdIJYbSkw&utm_campaign=designshare&utm_medium=link2&utm_source=uniquelinks&utlId=h6c71fb542b"
             target="_blank"
             rel="noreferrer"
+            onClick={() => trackEvent("catalog_click", { location: "results" })}
             aria-label="Zobacz katalog Lubelskiego Teamu Weselnego"
           >
             <span className="catalog-banner-script">Lubelski</span>
