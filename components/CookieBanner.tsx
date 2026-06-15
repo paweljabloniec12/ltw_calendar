@@ -59,11 +59,11 @@ export function CookieBanner() {
         oraz analizy ruchu (Google Analytics). Dane są anonimizowane i nie służą celom reklamowym.
       </p>
       <div className="cookie-banner-actions">
-        <button onClick={handleAccept} type="button" className="cookie-banner-btn">
-          Akceptuję
-        </button>
         <button onClick={handleDecline} type="button" className="cookie-banner-btn cookie-banner-btn--secondary">
           Odrzucam
+        </button>
+        <button onClick={handleAccept} type="button" className="cookie-banner-btn">
+          Akceptuję
         </button>
       </div>
     </div>
