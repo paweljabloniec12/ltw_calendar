@@ -97,6 +97,8 @@ html {
 }
 
 body {
+  display: flex;
+  flex-direction: column;
   min-height: 100vh;
   margin: 0;
   background: var(--sage-l);
@@ -223,6 +225,7 @@ a {
 }
 
 .hero {
+  flex: 1;
   display: flex;
   height: 100%;
   flex-direction: column;
@@ -551,6 +554,7 @@ a {
 }
 
 .rsec {
+  flex: 1;
   max-width: 960px;
   margin: 0 auto;
   padding: 48px 20px 72px;
@@ -642,6 +646,7 @@ a {
 }
 
 .auth-page {
+  flex: 1;
   max-width: 480px;
   margin: 0 auto;
   padding: 52px 20px 72px;
@@ -1883,6 +1888,31 @@ textarea {
   max-width: 140px;
 }
 
+.site-footer {
+  text-align: center;
+  padding: 24px 16px;
+  border-top: 0.5px solid var(--ivory, #e2e8f0);
+  margin-top: 0px;
+}
+
+.site-footer-text {
+  margin: 0;
+  font-size: 13px;
+  color: var(--charcoal);
+  opacity: 0.6;
+}
+
+.site-footer-link {
+  color: inherit;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  transition: opacity 0.2s;
+}
+
+.site-footer-link:hover {
+  opacity: 1;
+}
+
 /* ─── BANER COOKIES (STYLIZACJA APLIKACJI) ─── */
 
 .cookie-banner {
@@ -2262,7 +2292,7 @@ textarea {
 .team-info {
   max-width: 860px;
   margin: 0 auto;
-  padding: 0 20px 40px;
+  padding: 0 20px 18px;
   text-align: center;
 }
 
@@ -2599,7 +2629,7 @@ textarea {
   }
 
   .team-info {
-    padding-bottom: 56px;
+    padding-bottom: 18px;
   }
 
   .team-pillar {

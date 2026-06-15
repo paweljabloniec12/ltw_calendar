@@ -3,6 +3,7 @@ import { SiteHeader } from "@/components/site-header";
 import { GoogleAnalytics } from "@/components/GoogleAnalytics";
 import { CookieBanner } from "@/components/CookieBanner";
 import "./globals.css";
+import { Footer } from "@/components/Footer";
 
 export const metadata: Metadata = {
   title: "Lubelski Team Weselny — Sprawdź dostępność usługodawców",
@@ -38,21 +39,14 @@ export const viewport: Viewport = {
   initialScale: 1,
 };
 
-export default function RootLayout({
-  children,
-}: Readonly<{
-  children: React.ReactNode;
-}>) {
+export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   const schema = {
     "@context": "https://schema.org",
     "@type": "LocalBusiness",
     "name": "Lubelski Team Weselny",
     "description": "Zaufani usługodawcy ślubni z Lublina — fotografia, film, muzyka, dekoracje i więcej.",
     "url": "https://lubelskiteamweselny.pl",
-    "areaServed": {
-      "@type": "City",
-      "name": "Lublin"
-    },
+    "areaServed": { "@type": "City", "name": "Lublin" },
     "serviceType": "Usługi ślubne",
     "sameAs": [
       "https://www.instagram.com/lubelski_team_weselny/",
@@ -60,6 +54,7 @@ export default function RootLayout({
       "https://www.tiktok.com/@lubelski_team_weselny"
     ]
   };
+
   return (
     <html lang="pl">
       <head>
@@ -67,37 +62,12 @@ export default function RootLayout({
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(schema) }}
         />
-
-        {/* Google Analytics — tag zawsze obecny, ale zbieranie danych zablokowane do zgody */}
-        <script
-          async
-          src={`https://www.googletagmanager.com/gtag/js?id=${process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID}`}
-        />
-        <script
-          dangerouslySetInnerHTML={{
-            __html: `
-        window.dataLayer = window.dataLayer || [];
-        function gtag(){dataLayer.push(arguments);}
-        
-        // Domyślnie WSZYSTKO zablokowane — czekamy na zgodę użytkownika
-        gtag('consent', 'default', {
-          analytics_storage: 'denied',
-          ad_storage: 'denied',
-          wait_for_update: 500
-        });
-
-        gtag('js', new Date());
-        gtag('config', '${process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID}', {
-          anonymize_ip: true
-        });
-      `,
-          }}
-        />
       </head>
       <body>
         <GoogleAnalytics />
         <SiteHeader />
         {children}
+        <Footer />
         <CookieBanner />
       </body>
     </html>
