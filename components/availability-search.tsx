@@ -647,9 +647,18 @@ export function AvailabilitySearch() {
                 <ProviderCard
                   key={profile.id}
                   profile={profile}
-                  onClick={() => setActiveProfile(profile)}
+                  onClick={() => {
+                    // Wyślij event do GA
+                    if (typeof window !== "undefined" && (window as any).gtag) {
+                      (window as any).gtag("event", "provider_click", {
+                        provider_name: profile.full_name,
+                        service_type: profile.service_type,
+                      });
+                    }
+                    // Oryginalne działanie — otwieranie modala
+                    setActiveProfile(profile);
+                  }}
                   onPrefetch={() => {
-                    // Preładuj zdjęcie usługodawcy
                     const img = new window.Image();
                     img.src = avatarPath(profile.full_name);
                   }}
