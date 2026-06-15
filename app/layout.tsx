@@ -66,6 +66,32 @@ export default function RootLayout({
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(schema) }}
         />
+
+        {/* Google Analytics — tag zawsze obecny, ale zbieranie danych zablokowane do zgody */}
+        <script
+          async
+          src={`https://www.googletagmanager.com/gtag/js?id=${process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID}`}
+        />
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        
+        // Domyślnie WSZYSTKO zablokowane — czekamy na zgodę użytkownika
+        gtag('consent', 'default', {
+          analytics_storage: 'denied',
+          ad_storage: 'denied',
+          wait_for_update: 500
+        });
+
+        gtag('js', new Date());
+        gtag('config', '${process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID}', {
+          anonymize_ip: true
+        });
+      `,
+          }}
+        />
       </head>
       <body>
         <SiteHeader />
