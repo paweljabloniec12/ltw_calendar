@@ -16,6 +16,7 @@ import type { Profile } from "@/lib/types";
 import DatePicker, { registerLocale } from "react-datepicker";
 import { pl } from "date-fns/locale/pl";
 import "react-datepicker/dist/react-datepicker.css";
+import Image from "next/image";
 registerLocale("pl", pl);
 
 /* ─── Brand SVG icons ─────────────────────────────────────────── */
@@ -356,13 +357,18 @@ function ProviderModal({ profile, onClose }: ProviderModalProps) {
         <div className="pmodal-body">
           {!imgError ? (
             <div className="pmodal-photo">
-              <img
+              <Image
                 src={imgSrc}
                 alt={profile.full_name}
                 className="pmodal-photo-img"
+                width={460}
+                height={340}
+                style={{ objectFit: "cover", objectPosition: "top center" }}
                 onError={() => setImgError(true)}
+                priority={false}
               />
             </div>
+
           ) : (
             <div className="pmodal-avatar" aria-hidden="true">
               <span className="pmodal-avatar-initials">{initials}</span>
@@ -420,15 +426,17 @@ function ProviderModal({ profile, onClose }: ProviderModalProps) {
 type ProviderCardProps = {
   profile: Profile;
   onClick: () => void;
+  onPrefetch: () => void;
 };
 
-function ProviderCard({ profile, onClick }: ProviderCardProps) {
+function ProviderCard({ profile, onClick, onPrefetch }: ProviderCardProps) {
   const desc = profile.description || serviceHints[profile.service_type] || "";
 
   return (
     <button
       className="pcard2"
       onClick={onClick}
+      onMouseEnter={onPrefetch}
       type="button"
       aria-label={`${profile.full_name} — ${profile.service_type}. Kliknij, aby zobaczyć szczegóły`}
     >
@@ -464,9 +472,7 @@ export function AvailabilitySearch() {
           supabase
             .from("profiles")
             .select("*")
-            .eq("is_active", true)
-            .order("service_type", { ascending: true })
-            .order("full_name", { ascending: true }),
+            .eq("is_active", true),
           supabase
             .from("booked_dates")
             .select("provider_id")
@@ -642,6 +648,11 @@ export function AvailabilitySearch() {
                   key={profile.id}
                   profile={profile}
                   onClick={() => setActiveProfile(profile)}
+                  onPrefetch={() => {
+                    // Preładuj zdjęcie usługodawcy
+                    const img = new window.Image();
+                    img.src = avatarPath(profile.full_name);
+                  }}
                 />
               ))}
             </div>
