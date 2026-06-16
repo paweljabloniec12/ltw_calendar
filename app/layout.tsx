@@ -99,6 +99,7 @@ export default function RootLayout({
         <SiteHeader />
         {children}
         <CookieBanner />
+        <div id="datepicker-portal" />
       </body>
     </html>
   );
