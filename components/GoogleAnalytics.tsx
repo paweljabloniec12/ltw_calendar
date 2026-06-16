@@ -2,7 +2,7 @@
 
 import Script from "next/script";
 
-const GA_ID = process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID ?? "";
+const GA_ID = "G-X66BCP7XDW";
 
 export function GoogleAnalytics() {
   return (
@@ -10,35 +10,42 @@ export function GoogleAnalytics() {
       <Script
         id="google-consent-default"
         strategy="beforeInteractive"
-        dangerouslySetInnerHTML={{
-          __html: `
-            window.dataLayer = window.dataLayer || [];
-            function gtag(){ dataLayer.push(arguments); }
-            window.gtag = gtag;
-            gtag('consent', 'default', {
-              analytics_storage: 'denied',
-              ad_storage: 'denied',
-              ad_user_data: 'denied',
-              ad_personalization: 'denied'
-            });
-          `,
-        }}
-      />
+      >
+        {`
+          window.dataLayer = window.dataLayer || [];
+
+          function gtag(){
+            dataLayer.push(arguments);
+          }
+
+          window.gtag = gtag;
+
+          gtag('consent', 'default', {
+            analytics_storage: 'denied',
+            ad_storage: 'denied',
+            ad_user_data: 'denied',
+            ad_personalization: 'denied'
+          });
+        `}
+      </Script>
+
       <Script
-        id="google-analytics-script"
         src={`https://www.googletagmanager.com/gtag/js?id=${GA_ID}`}
         strategy="afterInteractive"
       />
+
       <Script
-        id="google-analytics-config"
+        id="google-analytics"
         strategy="afterInteractive"
-        dangerouslySetInnerHTML={{
-          __html: `
-            gtag('js', new Date());
-            gtag('config', '${GA_ID}', { anonymize_ip: true });
-          `,
-        }}
-      />
+      >
+        {`
+          gtag('js', new Date());
+
+          gtag('config', '${GA_ID}', {
+            anonymize_ip: true
+          });
+        `}
+      </Script>
     </>
   );
 }

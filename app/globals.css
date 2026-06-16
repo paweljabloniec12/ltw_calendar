@@ -447,6 +447,32 @@ a {
   display: none !important;
 }
 
+/* ─── DatePicker portal (mobile fullscreen) ─── */
+#datepicker-portal .react-datepicker__portal {
+  background: rgba(45, 40, 32, 0.6);
+  backdrop-filter: blur(4px);
+}
+
+#datepicker-portal .react-datepicker {
+  position: relative;
+  top: auto;
+  left: auto;
+  transform: none;
+  width: min(360px, 92vw);
+  margin: auto;
+}
+
+#datepicker-portal .react-datepicker__day {
+  width: 40px !important;
+  line-height: 40px !important;
+  font-size: 15px !important;
+}
+
+#datepicker-portal .react-datepicker__day-name {
+  width: 40px !important;
+  line-height: 40px !important;
+}
+
 .dlabel,
 .flabel,
 .dtype,
