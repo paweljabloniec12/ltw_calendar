@@ -1,5 +1,5 @@
 "use client";
-
+import React from "react"
 import { useMemo, useState, useEffect } from "react";
 import {
   Globe,
@@ -475,7 +475,11 @@ function ProviderCard({ profile, onClick, onPrefetch }: ProviderCardProps) {
     </button>
   );
 }
-
+// Dodaj nad komponentem AvailabilitySearch:
+const ReadOnlyInput = React.forwardRef<HTMLInputElement, React.InputHTMLAttributes<HTMLInputElement>>(
+  (props, ref) => <input {...props} ref={ref} readOnly />
+);
+ReadOnlyInput.displayName = "ReadOnlyInput";
 /* ─── Main Component ──────────────────────────────────────────── */
 export function AvailabilitySearch() {
   const [selectedDate, setSelectedDate] = useState("");
@@ -592,6 +596,10 @@ export function AvailabilitySearch() {
     setTotalProviders(0);
     setActiveProfile(null);
     setMessage("");
+    window.scrollTo({
+    top: 0,
+    behavior: "smooth",
+  });
   }
 
   const dateObject = selectedDate ? new Date(`${selectedDate}T12:00:00`) : null;
@@ -639,6 +647,7 @@ export function AvailabilitySearch() {
                 autoComplete="off"
                 withPortal={isMobile}
                 portalId="datepicker-portal"
+                customInput={<ReadOnlyInput />}
               />
             </div>
             <button

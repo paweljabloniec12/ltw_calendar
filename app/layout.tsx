@@ -3,6 +3,7 @@ import { SiteHeader } from "@/components/site-header";
 import { GoogleAnalytics } from "@/components/GoogleAnalytics";
 import { CookieBanner } from "@/components/CookieBanner";
 import "./globals.css";
+import { Footer } from "@/components/Footer";
 
 export const metadata: Metadata = {
   title: "Lubelski Team Weselny — Sprawdź dostępność usługodawców",
@@ -99,6 +100,7 @@ export default function RootLayout({
         <SiteHeader />
         {children}
         <CookieBanner />
+        <Footer />
         <div id="datepicker-portal" />
       </body>
     </html>
