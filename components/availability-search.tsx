@@ -23,10 +23,7 @@ registerLocale("pl", pl);
 function trackEvent(name: string, params?: Record<string, string>) {
   if (typeof window !== "undefined" && window.gtag) {
     window.gtag("event", name, params);
-
-    if (process.env.NODE_ENV === "development") {
-      console.log("[GA4 event]", name, params);
-    }
+    console.log("[GA4 event]", name, params);
   }
 }
 
