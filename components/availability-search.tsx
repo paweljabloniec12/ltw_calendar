@@ -23,6 +23,10 @@ registerLocale("pl", pl);
 function trackEvent(name: string, params?: Record<string, string>) {
   if (typeof window !== "undefined" && window.gtag) {
     window.gtag("event", name, params);
+
+    if (process.env.NODE_ENV === "development") {
+      console.log("[GA4 event]", name, params);
+    }
   }
 }
 
@@ -502,9 +506,9 @@ export function AvailabilitySearch() {
     if (!selectedDate) return;
 
     trackEvent("date_search", {
-    wedding_date: selectedDate,
-    month: selectedDate.slice(0, 7),
-  });
+      wedding_date: selectedDate,
+      month: selectedDate.slice(0, 7),
+    });
 
     setLoading(true);
     setMessage("");
@@ -533,14 +537,14 @@ export function AvailabilitySearch() {
 
       const available = active.filter((p) => !bookedIds.has(p.id));
 
-    // Dodaj drugi event z wynikami
-    trackEvent("date_search_result", {
-      wedding_date: selectedDate,
-      month: selectedDate.slice(0, 7),
-      available_count: String(available.length),
-      total_count: String(active.length),
-      fully_booked: available.length === 0 ? "tak" : "nie",
-    });
+      // Dodaj drugi event z wynikami
+      trackEvent("date_search_result", {
+        wedding_date: selectedDate,
+        month: selectedDate.slice(0, 7),
+        available_count: String(available.length),
+        total_count: String(active.length),
+        fully_booked: available.length === 0 ? "tak" : "nie",
+      });
 
 
       /* ─── FILTROWANIE ADMINA ORAZ ZABLOKOWANYCH USŁUGODAWCÓW ─── */
@@ -612,9 +616,9 @@ export function AvailabilitySearch() {
     setActiveProfile(null);
     setMessage("");
     window.scrollTo({
-    top: 0,
-    behavior: "smooth",
-  });
+      top: 0,
+      behavior: "smooth",
+    });
   }
 
   const dateObject = selectedDate ? new Date(`${selectedDate}T12:00:00`) : null;
