@@ -501,7 +501,10 @@ export function AvailabilitySearch() {
   async function checkAvailability() {
     if (!selectedDate) return;
 
-    trackEvent("date_search", { date: selectedDate });
+    trackEvent("date_search", {
+    wedding_date: selectedDate,
+    month: selectedDate.slice(0, 7),
+  });
 
     setLoading(true);
     setMessage("");
@@ -527,6 +530,18 @@ export function AvailabilitySearch() {
 
       const bookedIds = new Set((booked ?? []).map((r) => r.provider_id));
       const active = profiles ?? [];
+
+      const available = active.filter((p) => !bookedIds.has(p.id));
+
+    // Dodaj drugi event z wynikami
+    trackEvent("date_search_result", {
+      wedding_date: selectedDate,
+      month: selectedDate.slice(0, 7),
+      available_count: String(available.length),
+      total_count: String(active.length),
+      fully_booked: available.length === 0 ? "tak" : "nie",
+    });
+
 
       /* ─── FILTROWANIE ADMINA ORAZ ZABLOKOWANYCH USŁUGODAWCÓW ─── */
       const adminId = "f7ec9695-3fbe-49b6-b9c8-a15e7fb0ecc9";
