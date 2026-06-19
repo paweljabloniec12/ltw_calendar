@@ -6,7 +6,7 @@ export default function ResetPasswordPage() {
       <h1 className="atitle">Nowe hasło</h1>
       <p className="asub">
         Ustaw nowe hasło po wejściu z linku resetowania wysłanego przez
-        Supabase.
+        Lubelski Team Weselny.
       </p>
       <ResetPasswordForm />
     </main>
