@@ -330,6 +330,152 @@ a {
   text-align: left;
 }
 
+/* Stylizacja nakładki tła i okna modalnego */
+.step-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0, 0, 0, 0.4);
+  backdrop-filter: blur(3px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10000;
+  padding: 16px;
+}
+
+.step-modal-content {
+  background: var(--off-white, #ffffff);
+  border: 1px solid var(--lgray, #e2e8f0);
+  border-radius: 12px;
+  width: 100%;
+  max-width: 420px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+  overflow: hidden;
+  animation: fadeInModal 0.2s ease-out;
+}
+
+@keyframes fadeInModal {
+  from { opacity: 0; transform: scale(0.95); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+.step-modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--lgray, #e2e8f0);
+}
+
+.step-modal-header h3 {
+  margin: 0;
+  font-size: 1.1rem;
+  color: var(--charcoal, #2d3748);
+  font-weight: 600;
+}
+
+.step-modal-close {
+  background: none;
+  border: none;
+  font-size: 1.2rem;
+  cursor: pointer;
+  color: #a0aec0;
+  transition: color 0.2s;
+}
+
+.step-modal-close:hover {
+  color: var(--charcoal, #2d3748);
+}
+
+.step-modal-body {
+  padding: 20px;
+}
+
+.step-back-btn {
+  background: none;
+  border: none;
+  color: #4a5568;
+  font-size: 0.9rem;
+  cursor: pointer;
+  margin-bottom: 16px;
+  padding: 0;
+  text-decoration: underline;
+}
+
+/* Siatki wyboru */
+.step-grid {
+  display: grid;
+  gap: 10px;
+}
+
+.step-grid-years {
+  grid-template-columns: repeat(2, 1fr);
+}
+
+.step-grid-months {
+  grid-template-columns: repeat(3, 1fr);
+}
+
+.step-grid-days {
+  grid-template-columns: repeat(7, 1fr);
+}
+
+/* Przyciski opcji */
+.step-option-btn {
+  background: #f7fafc;
+  border: 1px solid var(--lgray, #e2e8f0);
+  border-radius: 8px;
+  padding: 12px 8px;
+  font-size: 1rem;
+  font-weight: 500;
+  color: var(--charcoal, #2d3748);
+  cursor: pointer;
+  transition: all 0.15s ease-in-out;
+}
+
+.step-option-btn:hover {
+  background: #edf2f7;
+  border-color: #cbd5e0;
+}
+
+.step-day-btn {
+  padding: 10px 0;
+  font-size: 0.95rem;
+}
+
+/* Nagłówki dni tygodnia (Pn, Wt, Śr...) w siatce kalendarza */
+.weekday-header {
+  text-align: center;
+  font-weight: 600;
+  font-size: 0.85rem;
+  color: var(--charcoal, #4a5568);
+  padding-bottom: 6px;
+}
+
+/* Puste miejsca przed 1. dniem miesiąca */
+.empty-day-slot {
+  visibility: hidden;
+}
+
+/* Styl dla nieaktywnych (zablokowanych) przycisków dat */
+.step-option-btn:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+  background-color: #edf2f7;
+  border-color: #e2e8f0;
+  color: #a0aec0;
+  box-shadow: none;
+}
+
+.step-option-btn:disabled:hover {
+  background-color: #edf2f7;
+  border-color: #e2e8f0;
+}
+
+
 /* ─── Stylizacja nowego okna wyboru daty (Datepicker) ───────── */
 
 /* Kontener pozycjonujący komponent */

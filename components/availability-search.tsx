@@ -16,6 +16,7 @@ import type { Profile } from "@/lib/types";
 import DatePicker, { registerLocale } from "react-datepicker";
 import { pl } from "date-fns/locale/pl";
 import "react-datepicker/dist/react-datepicker.css";
+import { StepDatePickerModal } from "./StepDatePickerModal";
 import Image from "next/image";
 registerLocale("pl", pl);
 
@@ -483,6 +484,8 @@ ReadOnlyInput.displayName = "ReadOnlyInput";
 /* ─── Main Component ──────────────────────────────────────────── */
 export function AvailabilitySearch() {
   const [selectedDate, setSelectedDate] = useState("");
+  const [displayDate, setDisplayDate] = useState<string>("");
+  const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
   const [confirmedDate, setConfirmedDate] = useState("");
   const [providers, setProviders] = useState<Profile[]>([]);
   const [totalProviders, setTotalProviders] = useState(0);
@@ -641,28 +644,25 @@ export function AvailabilitySearch() {
               Data ślubu / wesela
             </label>
             <div className="custom-datepicker-container">
-              <DatePicker
-                selected={dateObject}
-                onChange={(date: Date | null) => {
-                  if (date) {
-                    const yyyy = date.getFullYear();
-                    const mm = String(date.getMonth() + 1).padStart(2, "0");
-                    const dd = String(date.getDate()).padStart(2, "0");
-                    setSelectedDate(`${yyyy}-${mm}-${dd}`);
-                  } else {
-                    setSelectedDate("");
-                  }
-                }}
-                minDate={new Date()}
-                dateFormat="dd.MM.yyyy"
-                locale="pl"
+              <input
                 id="wedding-date"
+                type="text"
                 className="dinput"
-                placeholderText="dd.mm.rrrr"
-                autoComplete="off"
-                withPortal={isMobile}
-                portalId="datepicker-portal"
-                customInput={<ReadOnlyInput />}
+                placeholder="Wybierz datę..."
+                value={displayDate}
+                readOnly
+                onClick={() => setIsModalOpen(true)}
+                style={{ cursor: "pointer" }}
+              />
+
+              {/* Okno modalne */}
+              <StepDatePickerModal
+                isOpen={isModalOpen}
+                onClose={() => setIsModalOpen(false)}
+                onSelectDate={(isoDate, formattedDate) => {
+                  setSelectedDate(isoDate);
+                  setDisplayDate(formattedDate);
+                }}
               />
             </div>
             <button
